@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\ModFramework.NET\ModFramework.Console\bin\Debug\netcoreapp3.0\Modifications</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\ModFramework.NET\ModFramework.Console\bin\Debug\netcoreapp3.0\Modifications</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Module.cs" />
+  </ItemGroup>
+</Project>

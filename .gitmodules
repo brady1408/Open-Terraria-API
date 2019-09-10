@@ -1,0 +1,4 @@
+[submodule "ModFramework.NET"]
+	path = ModFramework.NET
+	url = https://github.com/DeathCradle/ModFramework.NET/
+	branch = netstandard-2.0

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\ModFramework.NET\ModFramework.Console\bin\Debug\netcoreapp3.0\Modifications</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\ModFramework.NET\ModFramework.Console\bin\Debug\netcoreapp3.0\Modifications</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Modules\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ModFramework.NET\ModFramework\ModFramework.csproj" />
+  </ItemGroup>
+</Project>
