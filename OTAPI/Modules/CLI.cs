@@ -121,7 +121,7 @@ namespace OTAPI.Modules
 
             var modifications = new[]
             {
-                "Terraria.Main..c*$berca"
+                "Terraria.Net.NetManager.SendData*$berca"
             };
             foreach (var pattern in modifications)
             {

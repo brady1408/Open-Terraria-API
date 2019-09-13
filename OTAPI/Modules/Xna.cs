@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Mod.Framework;
 using Mono.Cecil;
 
@@ -22,13 +23,28 @@ namespace OTAPI.Modules
 
         public override void Run()
         {
+			foreach (var asm in this.Assemblies
+				.Where(x => x.Name.Name.IndexOf("Terraria", StringComparison.CurrentCultureIgnoreCase) > -1))
+			{
+				var xnaFramework = asm.MainModule.AssemblyReferences
+					.Where(x => x.Name.StartsWith("Microsoft.Xna.Framework", StringComparison.CurrentCultureIgnoreCase))
+					.ToArray();
 
-        }
+				for (var x = 0; x < xnaFramework.Length; x++)
+				{
+					xnaFramework[x].Name = _xna.Name.Name;
+					xnaFramework[x].PublicKey = _xna.Name.PublicKey;
+					xnaFramework[x].PublicKeyToken = _xna.Name.PublicKeyToken;
+					xnaFramework[x].Version = _xna.Name.Version;
+				}
+			}
+		}
 
         public override AssemblyDefinition ResolveAssembly(AssemblyNameReference name)
         {
             System.Console.WriteLine($"Looking for assembly: {name.FullName}");
-            if(name.FullName.Equals("Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553"))
+            if(name.FullName.Equals("Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553")
+				|| name.Name.Equals("OTAPI.Xna"))
             {
                 return _xna;
             }

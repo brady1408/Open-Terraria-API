@@ -25,14 +25,13 @@ namespace OTAPI.Modules
             var tile = new Query("Terraria.Tile", this.Assemblies).Run().Single().Instance as Mono.Cecil.TypeDefinition;
             foreach (var field in tile.Fields.Where(x => !x.HasConstant))
             {
-                var property = field.ChangeToProperty().AsVirtual();
+                var property = field.AsProperty().AsVirtual();
                 field.ReplaceWith(property);
             }
 
             // generate the ITile interface
             var emitter = new Mod.Framework.Emitters.InterfaceEmitter(tile);
             var itile = emitter.Emit();
-            //itile.Namespace = "OTAPI.Tile";
 
             // change Tile to implement ITile
             tile.Interfaces.Add(new InterfaceImplementation(itile));
