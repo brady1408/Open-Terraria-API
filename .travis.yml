@@ -11,4 +11,4 @@ script:
   - dotnet --version
   - dotnet build
   - cd ModFramework.NET/ModFramework.Console/bin/Debug/netcoreapp3.0/
-  - dotnet run --project ../../../ModFramework.Console.csproj
+  - dotnet run -v d --project ../../../ModFramework.Console.csproj
