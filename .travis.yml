@@ -1,0 +1,13 @@
+language: csharp
+addons:
+  snaps:
+  - name: dotnet-sdk
+    classic: true
+    channel: latest/beta
+mono: none
+script:
+  - sudo snap alias dotnet-sdk.dotnet dotnet
+  - dotnet --version
+  - dotnet build
+  - cd ModFramework.NET/ModFramework.Console/bin/Debug/netcoreapp3.0/
+  - dotnet run --project ../../../ModFramework.Console.csproj
