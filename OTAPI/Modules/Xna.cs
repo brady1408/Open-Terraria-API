@@ -23,8 +23,7 @@ namespace OTAPI.Modules
 
         public override void Run()
         {
-			foreach (var asm in this.Assemblies
-				.Where(x => x.Name.Name.IndexOf("Terraria", StringComparison.CurrentCultureIgnoreCase) > -1))
+			foreach (var asm in this.Assemblies)
 			{
 				var xnaFramework = asm.MainModule.AssemblyReferences
 					.Where(x => x.Name.StartsWith("Microsoft.Xna.Framework", StringComparison.CurrentCultureIgnoreCase))
@@ -43,8 +42,10 @@ namespace OTAPI.Modules
         public override AssemblyDefinition ResolveAssembly(AssemblyNameReference name)
         {
             System.Console.WriteLine($"Looking for assembly: {name.FullName}");
-            if(name.FullName.Equals("Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553")
-				|| name.Name.Equals("OTAPI.Xna"))
+            if(name.FullName.StartsWith("Microsoft.Xna", StringComparison.CurrentCultureIgnoreCase)
+				|| name.Name.Equals("OTAPI.Xna")
+				|| name.Name.StartsWith("ReLogic", StringComparison.CurrentCultureIgnoreCase)
+			)
             {
                 return _xna;
             }
