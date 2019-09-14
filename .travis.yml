@@ -1,5 +1,4 @@
 language: csharp
-dist: xenial
 addons:
   snaps:
   - name: dotnet-sdk
@@ -10,5 +9,3 @@ script:
   - sudo snap alias dotnet-sdk.dotnet dotnet
   - dotnet --version
   - dotnet build
-  - cd ModFramework.NET/ModFramework.Console/bin/Debug/netcoreapp3.0/
-  - dotnet run -v d --project ../../../ModFramework.Console.csproj
