@@ -32,9 +32,16 @@ namespace OTAPI.Modules
 				// remove the readonly flag so we can change it at runtime.
 				asm.Type("ReLogic.OS.Platform").Field("Current").IsInitOnly = false;
 
+				// in addition to the above modification, this also allows rosyln to compile our script so we need to feed the updated assembly to it too
+				byte[] updated_relogic = null;
+				using (var ms = new MemoryStream())
+				{
+					asm.Write(ms);
+					updated_relogic = ms.ToArray();
+				}
+
 				// now add in the platform checks manually...
 				var method = asm.Type("ReLogic.OS.Platform").Method(".cctor");
-
 				var scriptMethod = this.TryGetCSharpScript(@"
 					if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) {
 						ReLogic.OS.Platform.Current = new ReLogic.OS.OsxPlatform();
@@ -49,24 +56,23 @@ namespace OTAPI.Modules
 					references: new[]
 					{
 						MetadataReference.CreateFromFile(typeof(RuntimeInformation).Assembly.Location), // platform
-						MetadataReference.CreateFromFile(Path.Combine("Output", "ReLogic.dll")),
-					},
-					ingoreAccessAssemblies: new string[] { "ReLogic" }
+						MetadataReference.CreateFromImage(updated_relogic)
+					}
 				);
 
-				method.Body.Instructions.Clear();
-				method.Body.Variables.Clear();
+			method.Body.Instructions.Clear();
+			method.Body.Variables.Clear();
 
-				foreach (var variable in scriptMethod.Body.Variables)
-				{
-					method.Body.Variables.Add(variable);
-				}
+			foreach (var variable in scriptMethod.Body.Variables)
+			{
+				method.Body.Variables.Add(variable);
+			}
 
-				foreach(var ins in scriptMethod.Body.Instructions)
-				{
-					method.Body.Instructions.Add(asm.MainModule.EnsureImported(ins));
-				}
+			foreach (var ins in scriptMethod.Body.Instructions)
+			{
+				method.Body.Instructions.Add(asm.MainModule.EnsureImported(ins));
 			}
 		}
 	}
+}
 }
