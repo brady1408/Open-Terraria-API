@@ -201,7 +201,7 @@ namespace OTAPI.Modules
 
 				#region Switch the default TcpSocket to now use the CrossPlatformTcpSocket
 				var netPlay = asm.Type("Terraria.Netplay");
-				var serverLoop = netPlay.Method("ServerLoop");
+				var serverLoop = netPlay.Method("ServerLoopDirect", "ServerLoop"); // try looking for the hooked method first, then fallback to the original if we turn the hook off
 				var newTcpSocket = serverLoop.Body.Instructions.Single(x => x.OpCode == OpCodes.Newobj
 					&& (x.Operand as MethodReference)?.Name == ".ctor"
 					&& (x.Operand as MethodReference)?.DeclaringType?.FullName == "Terraria.Net.Sockets.TcpSocket"

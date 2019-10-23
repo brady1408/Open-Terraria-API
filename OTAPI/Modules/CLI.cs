@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Mod.Framework;
 
 namespace OTAPI.Modules
@@ -90,19 +91,16 @@ namespace OTAPI.Modules
 		{
 			var modifications = new[]
 			{
-				new Hook("Terraria.Net.NetManager.SendData"),
-				new Hook("Terraria.Net.Netplay.StartListening"),
-				new Hook("Terraria.Net.Netplay.ServerLoop"),
+				new Hook("Terraria.Net.NetManager.SendData*"),
+				new Hook("Terraria.Netplay.StartListening*"),
+				new Hook("Terraria.Netplay.ServerLoop*"),
 			};
 			foreach (var hook in modifications)
 			{
-				Console.WriteLine($"\t-> Running query: {hook}");
+				Console.WriteLine($"\t-> Hooking: {hook}");
 				var query_start = DateTime.Now;
-				var res = new Query(hook.FullName, this.Assemblies)
-					.Run()
-					.Hook(hook.Options)
-				;
-				Console.WriteLine($"\t\t-> Took: {(int)(DateTime.Now - query_start).TotalMilliseconds}ms");
+				var res = new Query(hook.FullName, this.Assemblies).Hook(hook.Options);
+				Console.WriteLine($"\t\t-> Took: {(int)(DateTime.Now - query_start).TotalMilliseconds}ms Matches: {res.Applied}");
 			}
 		}
 	}
