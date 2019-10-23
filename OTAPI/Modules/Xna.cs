@@ -5,24 +5,26 @@ using Mono.Cecil;
 
 namespace OTAPI.Modules
 {
-    /// <summary>
+	/// <summary>
 	/// This module will resolve Xna references using the OTAPI.Xna library
 	/// </summary>
 	[Module("Adding Xna shims for cross platform compatibility", "death")]
-    public class Xna : RunnableModule
-    {
-        private ModFramework _framework;
-        private AssemblyDefinition _xna;
+	public class Xna : RunnableModule
+	{
+		private ModFramework _framework;
+		private AssemblyDefinition _xna;
 
-        public Xna(ModFramework framework)
-        {
-            _framework = framework;
+		public Xna(ModFramework framework)
+		{
+			_framework = framework;
 
-            _xna = AssemblyDefinition.ReadAssembly(System.IO.Path.Combine("Modifications", "netstandard2.0", "OTAPI.Xna.dll"));
-        }
+			//_xna = AssemblyDefinition.ReadAssembly(System.IO.Path.Combine("Modifications", "netstandard2.0", "OTAPI.Xna.dll"));
+			//_framework.CecilAssemblies.Add(_xna);
+			_xna = _framework.CecilAssemblies.Single(x => x.Name.Name == "OTAPI.Xna");
+		}
 
-        public override void Run()
-        {
+		public override void Run()
+		{
 			foreach (var asm in this.Assemblies)
 			{
 				var xnaFramework = asm.MainModule.AssemblyReferences
@@ -39,22 +41,20 @@ namespace OTAPI.Modules
 			}
 		}
 
-        public override AssemblyDefinition ResolveAssembly(AssemblyNameReference name)
-        {
-            System.Console.WriteLine($"Looking for assembly: {name.FullName}");
-            if(name.FullName.StartsWith("Microsoft.Xna", StringComparison.CurrentCultureIgnoreCase)
+		public override AssemblyDefinition ResolveAssembly(AssemblyNameReference name)
+		{
+			if (name.FullName.StartsWith("Microsoft.Xna", StringComparison.CurrentCultureIgnoreCase)
 				|| name.Name.Equals("OTAPI.Xna")
-				|| name.Name.StartsWith("ReLogic", StringComparison.CurrentCultureIgnoreCase)
 			)
-            {
-                return _xna;
-            }
-            return base.ResolveAssembly(name);
-        }
+			{
+				return _xna;
+			}
+			return base.ResolveAssembly(name);
+		}
 
-        public override AssemblyDefinition ResolveAssembly(AssemblyNameReference name, ReaderParameters parameters)
-        {
-            return base.ResolveAssembly(name, parameters);
-        }
-    }
+		public override AssemblyDefinition ResolveAssembly(AssemblyNameReference name, ReaderParameters parameters)
+		{
+			return base.ResolveAssembly(name, parameters);
+		}
+	}
 }

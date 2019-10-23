@@ -17,8 +17,8 @@ namespace OTAPI.Modules
         }
 
         public override void Run()
-        {
-            foreach (var asm in this.Assemblies)
+		{
+			foreach (var asm in this.Assemblies)
             {
                 foreach (var type in asm.MainModule.Types)
                     type.MakePublic();

@@ -20,28 +20,28 @@ namespace OTAPI.Modules
         }
 
         public override void Run()
-        {
-            // change the fields to properties so we can override them
-            var tile = new Query("Terraria.Tile", this.Assemblies).Run().Single().Instance as Mono.Cecil.TypeDefinition;
-            foreach (var field in tile.Fields.Where(x => !x.HasConstant))
-            {
-                var property = field.AsProperty().AsVirtual();
-                field.ReplaceWith(property);
-            }
+		{
+			// change the fields to properties so we can override them
+			var tile = new Query("Terraria.Tile", this.Assemblies).Run().Single().Instance as Mono.Cecil.TypeDefinition;
+			foreach (var field in tile.Fields.Where(x => !x.HasConstant))
+			{
+				var property = field.AsProperty().AsVirtual();
+				field.ReplaceWith(property);
+			}
 
-            // generate the ITile interface
-            var emitter = new Mod.Framework.Emitters.InterfaceEmitter(tile);
-            var itile = emitter.Emit();
+			// generate the ITile interface
+			var emitter = new Mod.Framework.Emitters.InterfaceEmitter(tile);
+			var itile = emitter.Emit();
 
-            // change Tile to implement ITile
-            tile.Interfaces.Add(new InterfaceImplementation(itile));
+			// change Tile to implement ITile
+			tile.Interfaces.Add(new InterfaceImplementation(itile));
 
-            // transform everything to be virtual
-            // this will also allow the interface to be implemented correctly
-            tile.MakeVirtual();
+			// transform everything to be virtual
+			// this will also allow the interface to be implemented correctly
+			tile.MakeVirtual();
 
-            // replace Tile with ITile
-            tile.ReplaceWith(itile);
-        }
+			// replace Tile with ITile
+			tile.ReplaceWith(itile);
+		}
     }
 }

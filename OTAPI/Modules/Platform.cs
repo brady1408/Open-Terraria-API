@@ -5,8 +5,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Mod.Framework;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
 
 namespace OTAPI.Modules
 {
@@ -26,6 +24,10 @@ namespace OTAPI.Modules
 
 		public override void Run()
 		{
+			// the idea is to modify the ReLogic dll to allow the Platform.Current
+			// variable to be modified at runtime, then i can update this on startup.
+			// to modify the variable on startup i use roslyn to compile C# to IL
+
 			foreach (var asm in this.Assemblies
 				.Where(x => x.Name.Name.IndexOf("ReLogic", StringComparison.CurrentCultureIgnoreCase) > -1))
 			{
@@ -55,24 +57,27 @@ namespace OTAPI.Modules
 				",
 					references: new[]
 					{
-						MetadataReference.CreateFromFile(typeof(RuntimeInformation).Assembly.Location), // platform
+						MetadataReference.CreateFromFile(typeof(RuntimeInformation).Assembly.Location),
 						MetadataReference.CreateFromImage(updated_relogic)
 					}
 				);
 
-			method.Body.Instructions.Clear();
-			method.Body.Variables.Clear();
+				if (method.Body.Instructions.Count != 3)
+					throw new NotImplementedException($"Only expected 3 instruction in {method.FullName}");
 
-			foreach (var variable in scriptMethod.Body.Variables)
-			{
-				method.Body.Variables.Add(variable);
-			}
+				method.Body.Instructions.Clear();
+				method.Body.Variables.Clear();
 
-			foreach (var ins in scriptMethod.Body.Instructions)
-			{
-				method.Body.Instructions.Add(asm.MainModule.EnsureImported(ins));
+				foreach (var variable in scriptMethod.Body.Variables)
+				{
+					method.Body.Variables.Add(variable);
+				}
+
+				foreach (var ins in scriptMethod.Body.Instructions)
+				{
+					method.Body.Instructions.Add(asm.MainModule.EnsureImported(ins));
+				}
 			}
 		}
 	}
-}
 }

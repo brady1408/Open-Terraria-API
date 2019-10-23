@@ -23,6 +23,7 @@ namespace OTAPI.Modules
 		public override void Run()
 		{
 			// this adds "if(Platform.IsWindows)" around the upnp code.
+			// the osx build omits the additional code so it seems ok to do this.
 			var terraria = this.Assemblies
 				.Single(x => x.Name.Name.IndexOf("Terraria", StringComparison.CurrentCultureIgnoreCase) > -1);
 			var relogic = this.Assemblies
@@ -31,7 +32,6 @@ namespace OTAPI.Modules
 			var il = terraria.Type("Terraria.Netplay").Method("OpenPort").Body.GetILProcessor();
 
 			var target = il.Body.Instructions.First(x => (x.Operand is FieldReference) && (x.Operand as FieldReference).Name == "portForwardPort");
-			var ret = il.Body.Instructions.Last(x => x.OpCode == OpCodes.Ret);
 
 			var p_isWindows = relogic.Type("ReLogic.OS.Platform").Property("IsWindows");
 			il.InsertAfter(
