@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Mod.Framework;
 using Mono.Cecil;
@@ -27,7 +25,6 @@ namespace OTAPI.Modules
 				.Where(x => x.Name.Name.IndexOf("Terraria", StringComparison.CurrentCultureIgnoreCase) > -1))
 			{
 				#region Compile cross platform socket
-				// in addition to the above modification, this also allows rosyln to compile our script so we need to feed the updated assembly to it too
 				byte[] updated_assembly = null;
 				using (var ms = new MemoryStream())
 				{
@@ -66,27 +63,10 @@ namespace OTAPI.Modules
 						public void AsyncReceive(byte[] data, int offset, int size, SocketReceiveCallback callback, object state = null)
 						{
 							socket.AsyncReceive(data, offset, size, callback, state);
-							//Console.WriteLine(""AsyncReceive"");
-							//socket.AsyncReceive(data, offset, size, (asd, asd123) =>
-							//{
-							//	Console.WriteLine(""AsyncReceive Callback Start"");
-							//	callback(asd, asd123);
-							//	Console.WriteLine(""AsyncReceive Callback End"");
-							//}, state);
 						}
 
 						public void AsyncSend(byte[] data, int offset, int size, SocketSendCallback callback, object state = null)
 						{
-							//socket.AsyncSend(data, offset, size, callback, state);
-							//Console.WriteLine(""AsyncSend"");
-							//socket.AsyncSend(data, offset, size, (asd) =>
-							//{
-							//	Console.WriteLine(""AsyncSend Callback Start"");
-							//	callback(asd);
-							//	Console.WriteLine(""AsyncSend Callback End"");
-							//}, state);
-							//return;
-							////_tcp.AsyncSend(data, offset, size, callback, state);
 							byte[] array = Terraria.Net.LegacyNetBufferPool.RequestBuffer(data, offset, size);
 							tcp._connection.GetStream().BeginWrite(array, 0, size, SendCallback, new object[2]
 							{
@@ -141,11 +121,6 @@ namespace OTAPI.Modules
 							socket.SendQueuedPackets();
 						}
 
-						//public bool StartListening(SocketConnectionAccepted callback)
-						//{
-						//	return socket.StartListening(callback);
-						//}
-
 						public void StopListening()
 						{
 							socket.StopListening();
@@ -185,12 +160,9 @@ namespace OTAPI.Modules
 								{
 									try
 									{
-										Console.WriteLine(""Waiting for client"");
 										ISocket acceptedSocket = new CrossPlatformTcpSocket(tcp._listener.AcceptTcpClient());
-										//ISocket acceptedSocket = new TcpSocket(tcp._listener.AcceptTcpClient());
 										Console.WriteLine(Language.GetTextValue(""Net.ClientConnecting"", acceptedSocket.GetRemoteAddress()));
 										tcp._listenerCallback(acceptedSocket);
-										Console.WriteLine(""Callback?"");
 									}
 									catch (Exception ex)
 									{
@@ -208,6 +180,8 @@ namespace OTAPI.Modules
 				",
 					references: new[]
 					{
+						// add the .net core references. any use of these assumes they exist in .net 4+ as terraria run on this platform
+						// and if the signatures do not exist in .net 4 there will be problems
 						MetadataReference.CreateFromFile(coreDir.FullName + Path.DirectorySeparatorChar + "mscorlib.dll"),
 						MetadataReference.CreateFromFile(coreDir.FullName + Path.DirectorySeparatorChar + "System.dll"),
 						MetadataReference.CreateFromFile(coreDir.FullName + Path.DirectorySeparatorChar + "System.Core.dll"),
@@ -238,90 +212,10 @@ namespace OTAPI.Modules
 					&& x.Parameters.Count == newTcpSocketctor.Parameters.Count
 				);
 				newTcpSocket.Operand = asm.MainModule.ImportReference(csctor);
-
-				////new Query("Terraria.Netplay.StartListening()", this.Assemblies).Hook();
-				//var r = new Query("Terraria.Netplay.ServerLoop(System.Object)", this.Assemblies).Hook();
-				//var applied = r.Count();
 				#endregion
+
+				// TODO socket create hook, with CrossPlatformTcpSocket as a fallback. ideally using MFW abstractions
 			}
-
-			//PatchAsyncSend();
-			//PatchSendCallback();
 		}
-
-		//void PatchAsyncSend()
-		//{
-		//	var terraria = this.Assemblies
-		//		.Single(x => x.Name.Name.IndexOf("Terraria", StringComparison.CurrentCultureIgnoreCase) > -1);
-
-		//	var tcpSocket = terraria.Type("Terraria.Net.Sockets.TcpSocket");
-
-		//	var AsyncSend = tcpSocket.Method("Terraria.Net.Sockets.ISocket.AsyncSend");
-
-		//	var il = AsyncSend.Body.GetILProcessor();
-		//	var buffer = new VariableDefinition(new ArrayType(tcpSocket.Module.TypeSystem.Byte));
-		//	il.Body.Variables.Add(buffer);
-		//	il.InsertBefore(il.Body.Instructions[0],
-		//		new { OpCodes.Ldarg_1 },
-		//		new { OpCodes.Ldarg_2 },
-		//		new { OpCodes.Ldarg_3 },
-		//		new
-		//		{
-		//			OpCodes.Call,
-		//			Operand = terraria.Type("Terraria.Net.LegacyNetBufferPool").Methods
-		//			.Single(x => x.Name == "RequestBuffer" && x.Parameters.Count == 3)
-		//		},
-		//		new { OpCodes.Stloc_0 }
-		//	);
-
-		//	//insert the object array (before the newobj tuple op code).
-
-		//	/*
-		//		newobj instance void [mscorlib]System.AsyncCallback::.ctor(object, native int) /* 0A000654 * /
-		//		IL_0023: ldc.i4.2
-		//		IL_0024: newarr [mscorlib]System.Object /* 01000014 * /
-		//		IL_0029: dup
-		//		IL_002a: ldc.i4.0
-		//		IL_002b: ldarg.s callback
-		//		IL_002d: ldarg.s state
-		//	*/
-		//	var tuple = il.Body.Instructions.Single(x => x.OpCode == OpCodes.Newobj
-		//		&& x.Previous.OpCode == OpCodes.Ldarg_S
-		//		&& x.Previous.Previous.OpCode == OpCodes.Ldarg_S
-		//	);
-		//	il.InsertBefore(tuple.Previous.Previous,
-		//		new { OpCodes.Ldc_I4_2 },
-		//		new { OpCodes.Newarr, Operand = terraria.MainModule.TypeSystem.Object },
-		//		new { OpCodes.Dup },
-		//		new { OpCodes.Ldc_I4_0 }
-		//	);
-
-
-		//	il.Body.Instructions.Single(x => x.OpCode == OpCodes.Callvirt
-		//		&& x.Next.OpCode == OpCodes.Ldarg_1
-		//	).OpCode = OpCodes.Ldloc_0;
-		//}
-
-		//void PatchSendCallback()
-		//{
-		//	var terraria = this.Assemblies
-		//		.Single(x => x.Name.Name.IndexOf("Terraria", StringComparison.CurrentCultureIgnoreCase) > -1);
-
-		//	var tcpSocket = terraria.Type("Terraria.Net.Sockets.TcpSocket");
-		//	var SendCallback = tcpSocket.Method("SendCallback");
-
-		//	var il = SendCallback.Body.GetILProcessor();
-
-		//	il.InsertAfter(il.Body.Instructions[1],
-		//		new { OpCodes.Castclass, Operand = new ArrayType(terraria.MainModule.TypeSystem.Object) },
-		//		new { OpCodes.Dup },
-		//		new { OpCodes.Ldc_I4_1 },
-		//		new { OpCodes.Ldelem_Ref },
-		//		new { OpCodes.Castclass, Operand = new ArrayType(terraria.MainModule.TypeSystem.Byte) },
-		//		new { OpCodes.Call, Operand = terraria.Type("Terraria.Net.LegacyNetBufferPool").Method("ReturnBuffer") },
-		//		new { OpCodes.Ldc_I4_0 },
-		//		new { OpCodes.Ldelem_Ref }
-		//	);
-		//}
 	}
 }

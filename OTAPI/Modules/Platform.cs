@@ -44,7 +44,7 @@ namespace OTAPI.Modules
 
 				// now add in the platform checks manually...
 				var method = asm.Type("ReLogic.OS.Platform").Method(".cctor");
-				var scriptMethod = this.TryGetCSharpScript(@"
+				var scriptMethod = this.TryCompileMethod(@"
 					if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) {
 						ReLogic.OS.Platform.Current = new ReLogic.OS.OsxPlatform();
 					}

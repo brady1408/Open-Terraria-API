@@ -17,9 +17,6 @@ namespace OTAPI.Modules
 		public Xna(ModFramework framework)
 		{
 			_framework = framework;
-
-			//_xna = AssemblyDefinition.ReadAssembly(System.IO.Path.Combine("Modifications", "netstandard2.0", "OTAPI.Xna.dll"));
-			//_framework.CecilAssemblies.Add(_xna);
 			_xna = _framework.CecilAssemblies.Single(x => x.Name.Name == "OTAPI.Xna");
 		}
 
@@ -27,17 +24,7 @@ namespace OTAPI.Modules
 		{
 			foreach (var asm in this.Assemblies)
 			{
-				var xnaFramework = asm.MainModule.AssemblyReferences
-					.Where(x => x.Name.StartsWith("Microsoft.Xna.Framework", StringComparison.CurrentCultureIgnoreCase))
-					.ToArray();
-
-				for (var x = 0; x < xnaFramework.Length; x++)
-				{
-					xnaFramework[x].Name = _xna.Name.Name;
-					xnaFramework[x].PublicKey = _xna.Name.PublicKey;
-					xnaFramework[x].PublicKeyToken = _xna.Name.PublicKeyToken;
-					xnaFramework[x].Version = _xna.Name.Version;
-				}
+				asm.ReplaceReferences("Microsoft.Xna.Framework", _xna.Name);
 			}
 		}
 

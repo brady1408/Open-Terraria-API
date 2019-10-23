@@ -1,9 +1,8 @@
-﻿using System;
-using Mod.Framework;
+﻿using Mod.Framework;
 
 namespace OTAPI.Modules
 {
-    /// <summary>
+	/// <summary>
 	/// This module will iterate over each type defined by the registered assemblies, while transforming all hidden members into public members.
 	/// </summary>
 	[Module("Making types public", "death")]

@@ -7,11 +7,11 @@ using Mod.Framework;
 
 namespace OTAPI.Modules
 {
-    /// <summary>
-    /// This module will prepare the program to patch TerrariaServer.exe.
-    /// It should grab anything the program needs from the official binaries.
-    /// </summary>
-    [Module("Setup", "death", -1)]
+	/// <summary>
+	/// This module will prepare the program to patch TerrariaServer.exe.
+	/// It should grab anything the program needs from the official binaries.
+	/// </summary>
+	[Module("Setup", "death", -1)]
     [AssemblyTarget("TerrariaServer, Version=1.3.5.3, Culture=neutral, PublicKeyToken=null")]
     [AssemblyTarget("Terraria, Version=1.3.5.3, Culture=neutral, PublicKeyToken=null")]
     public class Setup : RunnableModule

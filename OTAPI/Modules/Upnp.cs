@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using Microsoft.CodeAnalysis;
 using Mod.Framework;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
