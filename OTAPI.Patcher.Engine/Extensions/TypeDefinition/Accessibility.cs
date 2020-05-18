@@ -58,6 +58,12 @@ namespace OTAPI.Patcher.Engine.Extensions
 				type.IsNestedPublic = true;
 				state = false;
 			}
+			if (type.IsNestedAssembly)
+			{
+				type.IsNestedAssembly = false;
+				type.IsNestedPublic = true;
+				state = false;
+			}
 
 			type.IsPublic = state;
 
